@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'onboarding.dart';  // <-- ADD THIS IMPORT (create this file)
 
 void main() {
   runApp(const ArcheApp());
@@ -93,23 +94,33 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                /// Get Started Button
-                Container(
-                  width: 180,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4A8CFF), Color(0xFF9B4CFF)],
+                /// ⭐⭐⭐ UPDATED: Get Started Button with Navigation ⭐⭐⭐
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OnboardingScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 180,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF4A8CFF), Color(0xFF9B4CFF)],
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Get Started",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                    child: const Center(
+                      child: Text(
+                        "Get Started",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -162,8 +173,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 6),
-                    Icon(Icons.arrow_right_alt,
-                        color: Color(0xFF6A5AE0))
+                    Icon(Icons.arrow_right_alt, color: Color(0xFF6A5AE0))
                   ],
                 ),
 
