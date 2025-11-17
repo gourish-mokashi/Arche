@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard.dart';   // 🔥 IMPORTANT: Added dashboard import
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -10,7 +11,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int currentStep = 1;
 
-  // Form Data
+  // --- FORM DATA ---
   List<String> selectedInterests = [];
   String skillLevel = "";
   String language = "";
@@ -19,13 +20,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String extraResources = "";
 
   final TextEditingController interestController = TextEditingController();
-  final TextEditingController extraResourceController = TextEditingController();
+  final TextEditingController extraResourceController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFF3F0FF), Color(0xFFEFF4FF)],
@@ -35,30 +36,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
             child: Column(
               children: [
                 const SizedBox(height: 10),
 
-                /// STEP PROGRESS
+                // PROGRESS BAR
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(6, (index) {
                     return Container(
-                      height: 5,
-                      width: 40,
+                      width: 45,
+                      height: 6,
                       decoration: BoxDecoration(
                         color: currentStep - 1 >= index
-                            ? const Color(0xFF5A7BFF)
+                            ? const Color(0xFF6A5AE0)
                             : Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(40),
                       ),
                     );
                   }),
                 ),
 
-                const SizedBox(height: 15),
-
+                const SizedBox(height: 14),
                 Text(
                   "Step $currentStep of 6",
                   style: const TextStyle(
@@ -66,58 +66,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
+                // MAIN CARD
                 _buildCard(),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 25),
 
-                /// NAVIGATION BUTTONS
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // BACK
-                    if (currentStep > 1)
-                      _whiteButton(
-                        label: "Back",
-                        icon: Icons.arrow_back,
-                        onTap: () {
-                          setState(() {
-                            currentStep--;
-                          });
-                        },
-                      )
-                    else
-                      const SizedBox(width: 10),
-
-                    // NEXT
-                    _nextButton(
-                      label: currentStep == 6 ? "Finish" : "Next",
-                      onTap: () {
-                        if (currentStep < 6) {
-                          setState(() {
-                            currentStep++;
-                          });
-                        } else {
-                          // SUBMIT PROCESS
-                          print("INTERESTS: $selectedInterests");
-                          print("LEVEL: $skillLevel");
-                          print("LANG: $language");
-                          print("HOURS: $studyHours");
-                          print("TIME PERIOD: $timePeriod");
-                          print("RESOURCES: $extraResources");
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text("Form Submitted Successfully!")),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                // NAVIGATION BUTTONS
+                _buildNavigationButtons(),
 
                 const SizedBox(height: 30),
               ],
@@ -128,7 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // MAIN CARD UI
+  // CARD CONTAINER FOR STEPS
   Widget _buildCard() {
     return Container(
       padding: const EdgeInsets.all(22),
@@ -151,13 +108,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           if (currentStep == 3) _step3(),
           if (currentStep == 4) _step4(),
           if (currentStep == 5) _step5(),
-          if (currentStep == 6) _step6(),
+          if (currentStep == 6) _step6Summary(),
         ],
       ),
     );
   }
 
-  // STEP 1: WHAT TO LEARN
+  // STEP 1 — INTERESTS
   Widget _step1() {
     final interests = [
       "Python",
@@ -171,27 +128,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "What do you want to learn today?",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
+        const Text("What do you want to learn today?",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
-        const Text(
-          "Tell us what you're interested in",
-          style: TextStyle(color: Colors.black54),
-        ),
+        const Text("Tell us what you're interested in",
+            style: TextStyle(color: Colors.black54)),
         const SizedBox(height: 16),
 
-        /// INPUT FIELD
+        // Input field
         TextField(
           controller: interestController,
           decoration: InputDecoration(
-            hintText: "e.g., Python, Machine Learning...",
+            hintText: "e.g., Python, Machine Learning",
             filled: true,
             fillColor: Colors.grey.shade100,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
           onSubmitted: (value) {
@@ -204,27 +157,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
         const SizedBox(height: 14),
 
-        /// CHIPS
+        // Chips
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: interests.map((item) {
-            final bool selected = selectedInterests.contains(item);
+            final selected = selectedInterests.contains(item);
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  if (selected) {
-                    selectedInterests.remove(item);
-                  } else {
-                    selectedInterests.add(item);
-                  }
+                  selected
+                      ? selectedInterests.remove(item)
+                      : selectedInterests.add(item);
                 });
               },
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: selected ? const Color(0xFFEBE3FF) : Colors.grey[200],
+                  color: selected ? const Color(0xFFEDE4FF) : Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(item),
@@ -236,45 +187,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // STEP 2: SKILL LEVEL
+  // STEP 2 — SKILL LEVEL
   Widget _step2() {
     final levels = ["Beginner", "Intermediate", "Advanced"];
-
     return _radioGroup(
       title: "Your skill level",
       options: levels,
       selectedValue: skillLevel,
-      onChanged: (value) {
-        setState(() => skillLevel = value);
-      },
+      onChanged: (v) => setState(() => skillLevel = v),
     );
   }
 
-  // STEP 3: LANGUAGE
+  // STEP 3 — LANGUAGE
   Widget _step3() {
     return _radioGroup(
       title: "Preferred language",
       subtitle: "English or Hindi (video content)",
       options: ["English", "Hindi"],
       selectedValue: language,
-      onChanged: (value) {
-        setState(() => language = value);
-      },
+      onChanged: (v) => setState(() => language = v),
     );
   }
 
-  // STEP 4: HOURS PER DAY
+  // STEP 4 — HOURS PER DAY
   Widget _step4() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "How many hours per day can you learn?",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        const Text("How many hours per day can you learn?",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
         const SizedBox(height: 14),
 
         Slider(
@@ -291,63 +232,83 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // STEP 5: TIME PERIOD
+  // STEP 5 — TIME PERIOD
   Widget _step5() {
-    final options = [
-      "1 Week",
-      "2 Weeks",
-      "1 Month",
-      "2 Months",
-      "3 Months",
-    ];
-
+    final options = ["1 Week", "2 Weeks", "1 Month", "2 Months", "3 Months"];
     return _radioGroup(
       title: "Time period to finish learning",
       options: options,
       selectedValue: timePeriod,
-      onChanged: (value) {
-        setState(() => timePeriod = value);
-      },
+      onChanged: (v) => setState(() => timePeriod = v),
     );
   }
 
-  // STEP 6: EXTRA RESOURCES
-  Widget _step6() {
+  // STEP 6 — SUMMARY
+  Widget _step6Summary() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Extra specific resources",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
+        const Text("Your Learning Profile",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
-        const Text(
-          "Provide special websites / channels / books",
-          style: TextStyle(color: Colors.black54),
-        ),
-        const SizedBox(height: 16),
+        const Text("Here's what we've set up for you",
+            style: TextStyle(color: Colors.black54)),
+        const SizedBox(height: 18),
 
-        TextField(
-          controller: extraResourceController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: "e.g., MIT OCW, FreeCodeCamp, CodeWithHarry...",
-            filled: true,
-            fillColor: Colors.grey.shade100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
+        // JSON Preview Box
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF3F6FF),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            _generateSummaryJson(),
+            style: const TextStyle(
+              fontFamily: "Courier New",
+              fontSize: 14,
+              color: Colors.black87,
             ),
           ),
-          onChanged: (value) {
-            setState(() => extraResources = value);
-          },
+        ),
+
+        const SizedBox(height: 22),
+
+        // SUCCESS BOX
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE3FFE9),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF6FD98D)),
+          ),
+          child: const Text(
+            "✓ Profile created successfully! Click continue to start learning.",
+            style: TextStyle(
+              color: Color(0xFF277A41),
+            ),
+          ),
         )
       ],
     );
   }
 
-  // reusable radio-group
+  // SUMMARY JSON
+  String _generateSummaryJson() {
+    return """
+{
+  "topics": ${selectedInterests.isEmpty ? "\"Not provided\"" : selectedInterests},
+  "skilllevel": "${skillLevel.isEmpty ? "Not provided" : skillLevel}",
+  "language": "${language.isEmpty ? "Not provided" : language}",
+  "studyHours": "$studyHours hrs/day",
+  "timePeriod": "${timePeriod.isEmpty ? "Not provided" : timePeriod}",
+  "extraResources": "${extraResources.isEmpty ? "None" : extraResources}"
+}
+""";
+  }
+
+  // REUSABLE RADIO GROUP
   Widget _radioGroup({
     required String title,
     String? subtitle,
@@ -359,82 +320,108 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title,
-            style: const TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w700)),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
         if (subtitle != null)
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Text(subtitle,
-                style: const TextStyle(color: Colors.black54)),
+            child: Text(
+              subtitle,
+              style: const TextStyle(color: Colors.black54),
+            ),
           ),
         const SizedBox(height: 16),
-        Column(
-          children: options.map((item) {
-            return RadioListTile(
-              title: Text(item),
-              value: item,
-              groupValue: selectedValue,
-              onChanged: (value) => onChanged(value!),
-            );
-          }).toList(),
-        )
+
+        ...options.map((item) {
+          return RadioListTile(
+            title: Text(item),
+            value: item,
+            groupValue: selectedValue,
+            onChanged: (value) => onChanged(value!),
+          );
+        }),
       ],
     );
   }
 
-  Widget _whiteButton(
-      {required String label, required IconData icon, required Function() onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18),
-            const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontSize: 15)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _nextButton({required String label, required Function() onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF5C8FFF), Color(0xFFA870FF)],
-          ),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600),
+  // BOTTOM NAVIGATION BUTTONS (BACK + NEXT)
+  Widget _buildNavigationButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // BACK BUTTON
+        GestureDetector(
+          onTap: currentStep > 1
+              ? () {
+                  setState(() {
+                    currentStep--;
+                  });
+                }
+              : null,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                )
+              ],
             ),
-            const SizedBox(width: 6),
-            const Icon(Icons.arrow_forward_rounded,
-                size: 18, color: Colors.white)
-          ],
+            child: const Row(
+              children: [
+                Icon(Icons.arrow_back, size: 18),
+                SizedBox(width: 6),
+                Text("Back", style: TextStyle(fontSize: 15)),
+              ],
+            ),
+          ),
         ),
-      ),
+
+        // NEXT / CONTINUE BUTTON
+        GestureDetector(
+          onTap: () {
+            if (currentStep < 6) {
+              setState(() => currentStep++);
+            } else {
+              // 🔥 Navigate to Dashboard
+              Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
+
+            }
+          },
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 26, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF628BFF), Color(0xFFA66DFF)],
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  currentStep == 6 ? "Continue to Dashboard" : "Next",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(Icons.arrow_forward_sharp,
+                    color: Colors.white, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

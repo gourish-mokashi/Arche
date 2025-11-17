@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'onboarding.dart';  // <-- ADD THIS IMPORT (create this file)
+import 'signup.dart';       // Get Started → SignUpScreen
+import 'login.dart';        // Sign In → LoginScreen
 
 void main() {
   runApp(const ArcheApp());
@@ -43,7 +44,7 @@ class HomePage extends StatelessWidget {
               children: [
                 const SizedBox(height: 20),
 
-                /// App Icon + Name
+                /// LOGO + APP NAME
                 Column(
                   children: [
                     Container(
@@ -70,7 +71,7 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                /// Main Text
+                /// MAIN TITLE
                 const Text(
                   "The place where\nlearning begins",
                   textAlign: TextAlign.center,
@@ -94,13 +95,13 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                /// ⭐⭐⭐ UPDATED: Get Started Button with Navigation ⭐⭐⭐
+                /// ⭐ GET STARTED → SIGN UP SCREEN
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const OnboardingScreen(),
+                        builder: (context) => const SignUpScreen(),
                       ),
                     );
                   },
@@ -128,28 +129,38 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 14),
 
-                /// Sign In (Outlined)
-                Container(
-                  width: 180,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Sign In",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                /// ⭐ SIGN IN → LOGIN SCREEN
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 180,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Sign In",
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -157,7 +168,7 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 22),
 
-                /// Link Row
+                /// STUDY COMPANION LINK
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
@@ -179,8 +190,8 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 35),
 
-                /// FEATURES
-                FeatureCard(
+                /// FEATURE CARDS
+                const FeatureCard(
                   icon: Icons.menu_book,
                   title: "Topic-based resource discovery",
                   subtitle:
@@ -188,27 +199,24 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                FeatureCard(
+                const FeatureCard(
                   icon: Icons.psychology,
                   title: "AI study planner + smart notes",
-                  subtitle:
-                      "Intelligent planning and note-taking powered by AI",
+                  subtitle: "Intelligent planning & note-taking powered by AI",
                 ),
                 const SizedBox(height: 16),
 
-                FeatureCard(
+                const FeatureCard(
                   icon: Icons.flash_on,
                   title: "Instant revision system",
-                  subtitle:
-                      "Quick quizzes and tests to reinforce your learning",
+                  subtitle: "Quick quizzes & tests to reinforce learning",
                 ),
                 const SizedBox(height: 16),
 
-                FeatureCard(
+                const FeatureCard(
                   icon: Icons.calendar_today,
                   title: "Daily reminders & streaks",
-                  subtitle:
-                      "Stay consistent with smart notifications and tracking",
+                  subtitle: "Stay consistent with smart reminders",
                 ),
 
                 const SizedBox(height: 40),
@@ -245,14 +253,13 @@ class FeatureCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 18,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Gradient Icon
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -263,10 +270,7 @@ class FeatureCard extends StatelessWidget {
             ),
             child: Icon(icon, color: Colors.white, size: 26),
           ),
-
           const SizedBox(width: 16),
-
-          /// Texts
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
