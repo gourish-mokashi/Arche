@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'signup.dart';       // Get Started → SignUpScreen
-import 'login.dart';        // Sign In → LoginScreen
+import 'signup.dart'; // Get Started → SignUpScreen
+import 'login.dart'; // Sign In → LoginScreen
 
 void main() {
   runApp(const ArcheApp());
@@ -28,10 +28,7 @@ class HomePage extends StatelessWidget {
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFF5F3FF),
-              Color(0xFFEFF1FF),
-            ],
+            colors: [Color(0xFFF5F3FF), Color(0xFFEFF1FF)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -55,8 +52,11 @@ class HomePage extends StatelessWidget {
                           colors: [Color(0xFF6A5AE0), Color(0xFF9C4BFF)],
                         ),
                       ),
-                      child: const Icon(Icons.auto_graph,
-                          size: 40, color: Colors.white),
+                      child: const Icon(
+                        Icons.auto_graph,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     const Text(
@@ -75,10 +75,7 @@ class HomePage extends StatelessWidget {
                 const Text(
                   "The place where\nlearning begins",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
                 ),
 
                 const SizedBox(height: 12),
@@ -135,7 +132,7 @@ class HomePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
+                        builder: (context) => const LoginPage(),
                       ),
                     );
                   },
@@ -150,7 +147,7 @@ class HomePage extends StatelessWidget {
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: const Center(
@@ -172,8 +169,11 @@ class HomePage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.picture_as_pdf,
-                        size: 18, color: Color(0xFF8566FF)),
+                    Icon(
+                      Icons.picture_as_pdf,
+                      size: 18,
+                      color: Color(0xFF8566FF),
+                    ),
                     SizedBox(width: 8),
                     Text(
                       "Try Study Companion (Upload PDFs/PPTs)",
@@ -184,7 +184,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 6),
-                    Icon(Icons.arrow_right_alt, color: Color(0xFF6A5AE0))
+                    Icon(Icons.arrow_right_alt, color: Color(0xFF6A5AE0)),
                   ],
                 ),
 
@@ -293,7 +293,7 @@ class FeatureCard extends StatelessWidget {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
