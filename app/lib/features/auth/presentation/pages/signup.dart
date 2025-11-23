@@ -135,11 +135,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 isVisible: showPassword,
                 onToggle: () => setState(() => showPassword = !showPassword),
               ),
-
+              const SizedBox(height: 30),
               BlocConsumer<AuthBloc, AuthState>(
-                builder: (context, state){
-                  if(state is AuthLoading){
-                    return Center(child: CircularProgressIndicator(),);
+                builder: (context, state) {
+                  if (state is AuthLoading) {
+                    return Center(child: CircularProgressIndicator());
                   }
                   return AuthButton(text: "Register", onPressed: _onRegister);
                 },
@@ -147,17 +147,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   if (state is AuthSuccess) {
                     Navigator.pushNamed(context, '/login');
                   } else if (state is AuthFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.error)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(state.error)));
                   }
                 },
               ),
-              const SizedBox(height: 22),
-
-              AuthButton(text: "Create Account", onPressed: _onRegister),
-
-              const SizedBox(height: 5),
+              const SizedBox(height: 10),
 
               LoginPrompt(text: "Already have an account?", onTap: () {}),
 
