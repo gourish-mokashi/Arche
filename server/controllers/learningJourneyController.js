@@ -40,7 +40,7 @@ async function newLearningJourney(req, res) {
 
             const roadmap = await roadmapAgent(topicName, `${hoursPerDay} hours per day for ${monthsToComplete} months`);
 
-            const subTopicsData = await prisma.subTopic.createMany({
+            const subTopicsData = await prisma.subTopic.createManyAndReturn({
                 data: roadmap.map((dayTopic) => ({
                     description: dayTopic,
                     learningJourneyId: learningJourney.id,
@@ -65,4 +65,56 @@ async function newLearningJourney(req, res) {
     }
 }
 
-export { newLearningJourney };
+async function getLearningJourneys(req, res) {
+    const { userId } = req.query;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'userId query parameter is required.' });
+    }
+
+    const { learningJourneyId } = req.query;
+
+    if (learningJourneyId) {
+        try {
+            const learningJourney = await prisma.learningJourney.findUnique({
+                where: { id: learningJourneyId, userId: userId },
+                include: {
+                    subTopics: {
+                        include: {
+                            videoResources: true
+                        }
+                    }
+                }
+            });
+
+            if (!learningJourney) {
+                return res.status(404).json({ error: 'Learning journey not found.' });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: learningJourney
+            });
+        } catch (error) {
+            console.error('Error fetching learning journey by ID:', error);
+            return res.status(500).json({ error: 'Internal server error.' });
+        }
+    }
+    else {
+        try {
+            const learningJourneys = await prisma.learningJourney.findMany({
+                where: { userId: userId },
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: learningJourneys
+            });
+        } catch (error) {
+            console.error('Error fetching learning journeys:', error);
+            return res.status(500).json({ error: 'Internal server error.' });
+        }
+    }
+}
+
+export { newLearningJourney, getLearningJourneys };
