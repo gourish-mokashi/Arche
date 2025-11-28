@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Import the Models and the Result Screen
-import 'features/learning/data/models/learning_journey_model.dart';
-import 'features/learning/presentation/pages/generated_roadmap_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
