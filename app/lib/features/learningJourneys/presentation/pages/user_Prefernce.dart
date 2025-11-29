@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import './features/auth/presentation/bloc/auth_local.dart';
-import 'features/learning/data/repositories/learning_repository.dart';
-import 'features/learning/presentation/pages/generated_roadmap_screen.dart';
+import '../../../auth/presentation/bloc/auth_local.dart';
+import '../../data/repositories/learning_repository.dart';
+import 'generated_roadmap_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final tok = await AuthLocal.getToken();
     if (!mounted) return;
     setState(() {
-      _userId = "cmiddkcas00006mjfg5pk7arx";
+      _userId = "cmikhub6a00bh6mmvazs2emim";
       _token = tok;
     });
     print('DEBUG loaded uid=$_userId tok=$_token');
@@ -205,7 +205,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           onSubmitted: (v) {
             if (v.isNotEmpty)
               setState(() {
-                selectedInterests.add(v);
+                selectedInterests = [v];
                 interestController.clear();
               });
           },
@@ -217,11 +217,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: interests.map((item) {
             final selected = selectedInterests.contains(item);
             return GestureDetector(
-              onTap: () => setState(
-                () => selected
-                    ? selectedInterests.remove(item)
-                    : selectedInterests.add(item),
-              ),
+              onTap: () => setState(() {
+                // Only one chip can be selected at a time
+                if (selected) {
+                  selectedInterests.clear();
+                } else {
+                  selectedInterests = [item];
+                }
+              }),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,

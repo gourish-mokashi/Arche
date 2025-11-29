@@ -1,0 +1,1 @@
+//Add the code for the card of the courses which will be viewed in CourseListScreen

@@ -1,15 +1,10 @@
+import 'package:app/features/Dashboard/presentation/pages/dashboard.dart';
 import 'package:flutter/material.dart';
-
-import '../../../courses/presentation/pages/courses_screen.dart';
+import '../../../learningJourneys/presentation/pages/Course_list_screen.dart';
 import '../../../summarizer/presentation/pages/notes_screen.dart';
-import '../../../roadmap/presentation/pages/roadmap_screen.dart';
-import '../../../profile/presentation/pages/profile_screen.dart';
 import '../../../summarizer/presentation/pages/summarize_screen.dart';
 import 'arche_bottom_nav.dart';
-import 'arche_drawer.dart';
-
-// Onboarding is directly under lib/
-import 'package:app/onboarding.dart';
+import '../../../learningJourneys/presentation/pages/user_Prefernce.dart';
 
 class ArcheShell extends StatefulWidget {
   const ArcheShell({super.key});
@@ -27,15 +22,13 @@ class _ArcheShellState extends State<ArcheShell> {
   Widget _buildBody() {
     switch (_currentIndex) {
       case 0:
-        return const CoursesScreen();
+        return const DashboardScreen();
       case 1:
-        return const NotesScreen();
+        return const CourseListScreen();
       case 3:
-        return const RoadmapScreen();
-      case 4:
-        return const ProfileScreen();
+        return const NotesScreen();
       default:
-        return const CoursesScreen();
+        return const DashboardScreen();
     }
   }
 
@@ -50,9 +43,7 @@ class _ArcheShellState extends State<ArcheShell> {
     if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => const OnboardingScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
       return; // prevent tab switch
     }
@@ -64,37 +55,15 @@ class _ArcheShellState extends State<ArcheShell> {
   // Drawer navigation
   // -------------------------------
   void _openSummarize() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SummarizeScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => SummarizeScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: ArcheDrawer(
-        onDashboardTap: () {
-          Navigator.pop(context);
-          setState(() => _currentIndex = 0);
-        },
-        onLearningJourneyTap: () {
-          Navigator.pop(context);
-          setState(() => _currentIndex = 3); // roadmap tab
-        },
-        onSummarizeTap: () {
-          Navigator.pop(context);
-          _openSummarize();
-        },
-        onProfileTap: () {
-          Navigator.pop(context);
-          setState(() => _currentIndex = 4);
-        },
-      ),
-
-      appBar: AppBar(
-        elevation: 0,
-        title: const Text('Arche'),
-      ),
+      appBar: AppBar(elevation: 0, title: const Text('Arche')),
 
       body: _buildBody(),
 

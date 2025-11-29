@@ -1,4 +1,3 @@
-import 'package:app/dashboard.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:app/features/auth/presentation/bloc/auth_state.dart';
@@ -8,8 +7,7 @@ import 'package:app/features/auth/presentation/widgets/auth_pasword_field.dart';
 import 'package:app/features/auth/presentation/widgets/login_prompt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../onboarding.dart';
-import 'login.dart';
+import '../../../../features/learningJourneys/presentation/pages/user_Prefernce.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
