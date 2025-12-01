@@ -68,7 +68,7 @@ async function newLearningJourney(req, res) {
 
 async function getLearningJourneys(req, res) {
     const { userId } = req.query;
-
+    console.log("Received userId:", userId);
     if (!userId) {
         return res.status(400).json({ error: 'userId query parameter is required.' });
     }
@@ -118,4 +118,31 @@ async function getLearningJourneys(req, res) {
     }
 }
 
-export { newLearningJourney, getLearningJourneys };
+async function updateProgress(req, res) {
+    const { learningJourneyId, subTopicId } = req.body;
+
+    if (!learningJourneyId || !subTopicId) {
+        return res.status(400).json({ error: 'learningJourneyId and subTopicId are required.' });
+    }
+
+    try {
+        const previousSubTopicStatus = await prisma.subTopic.findUnique({
+            where: { id: subTopicId, learningJourneyId: learningJourneyId },
+            select: { isCompleted: true },
+        });
+        const subTopic = await prisma.subTopic.update({
+            where: { id: subTopicId, learningJourneyId: learningJourneyId },
+            data: { isCompleted: !previousSubTopicStatus.isCompleted },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Sub-topic progress altered.',
+            updatedSubTopic: subTopic
+        });
+    } catch (error) {
+        console.error('Error updating progress:', error);
+        return res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+export { newLearningJourney, getLearningJourneys, updateProgress };
