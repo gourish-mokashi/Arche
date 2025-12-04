@@ -46,7 +46,8 @@ class _ArcheShellState extends State<ArcheShell> {
       case 2:
         return const OnboardingScreen();
       case 3:
-        return const SummarizeScreen();
+        return const NotesScreen()
+;
       default:
         return const DashboardScreen();
     }

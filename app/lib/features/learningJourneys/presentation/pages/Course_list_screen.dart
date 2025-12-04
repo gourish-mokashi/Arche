@@ -1,117 +1,138 @@
 import 'package:flutter/material.dart';
 import '../../data/repositories/learning_repository.dart';
 import '../../data/models/learning_journey_model.dart';
-import '../../../auth/presentation/bloc/auth_local.dart';
-import '../widgets/Course_card.dart';
+import 'generated_roadmap_screen.dart';
 
 class CourseListScreen extends StatefulWidget {
-  final String userId = "cmieugm7s0000uye0jzmwhgut";
   final LearningRepository repository;
 
-  const CourseListScreen({super.key, required this.repository});
+  // ✅ DO NOT USE const here because repository is runtime injected
+  CourseListScreen({
+    super.key,
+    required this.repository,
+  });
 
   @override
   State<CourseListScreen> createState() => _CourseListScreenState();
 }
 
 class _CourseListScreenState extends State<CourseListScreen> {
+  // ✅ TEMP USER (replace later with AuthLocal)
+  final String userId = "cmieugm7s0000uye0jzmwhgut";
+
   late Future<List<LearningJourney>> _journeysFuture;
 
   @override
   void initState() {
     super.initState();
-    _journeysFuture = widget.repository.getAllJourneys(widget.userId);
+    _loadCourses();
+  }
+
+  void _loadCourses() {
+    _journeysFuture = widget.repository.getAllJourneys(userId);
   }
 
   Future<void> _refresh() async {
     setState(() {
-      _journeysFuture = widget.repository.getAllJourneys(widget.userId);
+      _loadCourses();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ongoing Courses')),
+      appBar: AppBar(
+        title: const Text("Ongoing Courses"),
+        centerTitle: true,
+      ),
       body: FutureBuilder<List<LearningJourney>>(
         future: _journeysFuture,
         builder: (context, snapshot) {
+          // ✅ LOADING STATE
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
+          // ✅ ERROR STATE
           if (snapshot.hasError) {
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Failed to load courses.\n${snapshot.error}',
-                  textAlign: TextAlign.center,
-                ),
+              child: Text(
+                "Failed to load courses\n${snapshot.error}",
+                textAlign: TextAlign.center,
               ),
             );
           }
+
           final journeys = snapshot.data ?? [];
+
+          // ✅ EMPTY STATE
           if (journeys.isEmpty) {
-            return const Center(child: Text('No ongoing courses.'));
+            return const Center(child: Text("No courses yet"));
           }
+
+          // ✅ COURSE LIST
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView.builder(
+              padding: const EdgeInsets.all(12),
               itemCount: journeys.length,
               itemBuilder: (context, index) {
                 final journey = journeys[index];
-                return CourseCard(
-                  journey: journey,
-                  onTap: () async {
-                    // Optionally fetch details on tap using repository route
-                    try {
-                      final details = await widget.repository.getJourneyDetails(
-                        widget.userId,
-                        journey.id,
-                      );
-                      // Navigate to a detail page if you have one
-                      // Navigator.pushNamed(context, '/journeyDetail', arguments: details);
-                      // For now, show a simple bottom sheet with summary
-                      if (!mounted) return;
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (ctx) {
-                          return Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  details.topicName,
-                                  style: Theme.of(ctx).textTheme.titleLarge,
-                                ),
-                                const SizedBox(height: 8),
-                                Text('Created: ${details.createdAt}'),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Subtopics: ${details.subTopics?.length ?? 0}',
-                                ),
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('Close'),
-                                  ),
-                                ),
-                              ],
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.school,
+                      color: Colors.deepPurple,
+                    ),
+                    title: Text(
+                      journey.topicName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      "Created on ${journey.createdAt}",
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+
+                    // ✅ OPEN BACKEND-POWERED ROADMAP
+                    onTap: () async {
+                      try {
+                        final detailed = await widget.repository
+                            .getJourneyDetails(
+                          userId,
+                          journey.id,
+                        );
+
+                        if (!mounted) return;
+
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GeneratedRoadmapScreen(
+                              journey: detailed,
+                              repository: widget.repository,
+                              userId: userId,
                             ),
-                          );
-                        },
-                      );
-                    } catch (e) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error fetching details: $e')),
-                      );
-                    }
-                  },
+                          ),
+                        );
+
+                        // ✅ AUTO REFRESH AFTER MARKING TASKS COMPLETE
+                        _refresh();
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Failed to open course: $e"),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 );
               },
             ),
