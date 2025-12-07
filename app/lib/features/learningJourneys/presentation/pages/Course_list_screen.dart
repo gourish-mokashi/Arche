@@ -49,7 +49,6 @@ class _CourseListScreenState extends State<CourseListScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Ongoing Courses"), centerTitle: true),
       body: FutureBuilder<List<LearningJourney>>(
         future: _journeysFuture,
         builder: (context, snapshot) {
