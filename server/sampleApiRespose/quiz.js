@@ -187,3 +187,40 @@
 
 // API 2
 // to submit quiz answers and get score
+// POST    http://localhost:5000/api/quizzes/answers
+
+// sample request body
+
+// {
+//     "quizId": "cmivol0wy0001ijvpz7beqoko",
+//     "answers": {
+//   ------ QuestionId : Selected Option -----
+//         "cmivol0wy0001ijvpz7beqoko" : "Physical Layer",
+//         "cmivol0wy0003ijvp4o5ht6eo" : "Data Link Layer",
+//         "cmivol0wy0004ijvplcdezdmr" : "Error detection and correction within a segment",
+//         "cmivol0wz0005ijvpvpo7mt95" : "Establishing and managing sessions between applications",
+//         "cmivol0wz0006ijvph52y75kr" :  "Establishing and managing sessions between applications",
+//         "cmivol0wz0007ijvpnbca0qrv" : "Presentation Layer",
+//         "cmivol0wz0008ijvpuf4h689b" : "Presentation Layer",
+//         "cmivol0wz0009ijvptrx0bz0j" : "Packet",
+//         "cmivol0wz000aijvpy1ro6l8o" :"Data Link Layer",
+//         "cmivol0wz000bijvpxb8fvwt2" : "Network Layer",
+//         "cmivol0wz000cijvpfflpt4uh" :"Network Layer",
+//         "cmivol0wz000dijvpoahfdmki" :"Transport Layer",
+//         "cmivol0wz000eijvpjermd4wp" :"Application Layer",
+//         "cmivol0wz000fijvp710ko932" :"Transport Layer",
+//         "cmivol0wz000gijvpljwq4s23" :"Physical Layer",
+//         "cmivol0wz000hijvpbtuyus2t" :"Application Layer",
+//         "cmivol0wz000iijvpsypm4sat" : "Network Layer"
+//     } 
+// }
+
+// sample response
+// {
+//   "success": true,
+//   "data": {
+//     "score": 9,
+//     "totalQuestions": 17,
+//     "result": "failed"  // if above 70% then  the value will be "passed"
+//   }
+// }

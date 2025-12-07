@@ -1,9 +1,9 @@
 import  { Router } from 'express';
-import { createQuiz } from '../controllers/quizController.js';
+import { createQuiz, checkQuizAnswer } from '../controllers/quizController.js';
 
 const quizRouter = Router();
 
-// quizRouter.post('/answers', );
+quizRouter.post('/answers', checkQuizAnswer);
 
 quizRouter.get('/start', createQuiz);   
 

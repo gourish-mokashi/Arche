@@ -71,4 +71,38 @@ async function createQuiz(req, res) {
     }
 }
 
-export { createQuiz };
+async function checkQuizAnswer(req, res) {
+    const { answers, quizId } = req.body
+
+    const correctAnswers = await prisma.quiz.findUnique({
+        where: { id: quizId },
+        include: {
+            questions: {
+                select: {
+                    id: true,
+                    correctAnswer: true,
+                }
+            }
+        },
+    })
+
+    let score = 0;
+    const totalQuestions = correctAnswers.questions.length;
+    correctAnswers.questions.map((question) => {
+        const userAnswer = answers[question.id];
+        const isCorrect = userAnswer === question.correctAnswer;
+        if (isCorrect) score += 1;
+    });
+
+    const passed = score / totalQuestions >= 0.7;
+
+    return res.status(200).json({
+        success: true,
+        data: {
+            score,
+            totalQuestions,
+            result: passed ? "passed" : "failed",
+        }
+    })
+}
+export { createQuiz, checkQuizAnswer };
