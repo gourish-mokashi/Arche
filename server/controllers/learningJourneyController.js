@@ -2,7 +2,7 @@ import roadmapAgent from "../aiAgents/roadmapAgent.js";
 import prisma from "../exports/prisma.js";
 import findRelevantVideoMaterials from "../lib/findRelevantVideoMaterials.js";
 
-// ✅ CREATE NEW JOURNEY
+
 async function newLearningJourney(req, res) {
   const {
     topicName,
@@ -42,7 +42,7 @@ async function newLearningJourney(req, res) {
       data: roadmap.map((dayTopic) => ({
         description: dayTopic,
         learningJourneyId: learningJourney.id,
-        isCompleted: false, // ✅ important
+        isCompleted: false, 
       })),
     });
 
@@ -59,7 +59,7 @@ async function newLearningJourney(req, res) {
   }
 }
 
-// ✅ GET JOURNEYS & DETAILS
+
 async function getLearningJourneys(req, res) {
   const { userId, learningJourneyId } = req.query;
 
@@ -102,9 +102,9 @@ async function getLearningJourneys(req, res) {
   }
 }
 
-// ✅ ✅ ✅ FIXED MARK TASK COMPLETE API
+
 async function updateProgress(req, res) {
-    console.log("updateProgress called with body:", req.body);
+    // console.log("updateProgress called with body:", req.body);
   const { subTopicId } = req.body;
 
   if (!subTopicId) {
@@ -112,7 +112,7 @@ async function updateProgress(req, res) {
   }
 
   try {
-    // ✅ STEP 1: Get current completion state
+
     const previous = await prisma.subTopic.findUnique({
       where: { id: subTopicId },
       select: { isCompleted: true },
@@ -122,9 +122,9 @@ async function updateProgress(req, res) {
       return res.status(404).json({ error: "Sub-topic not found." });
     }
 
-    // ✅ STEP 2: Toggle completion
+
     const updatedSubTopic = await prisma.subTopic.update({
-      where: { id: subTopicId }, // ✅ VALID PRISMA USAGE
+      where: { id: subTopicId },
       data: { isCompleted: !previous.isCompleted },
     });
 

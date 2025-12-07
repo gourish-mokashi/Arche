@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import learningJourneyRouter from './routes/learningJourneyRoute.js';
 import authRouter from './routes/authRoute.js';
+import quizRouter from './routes/quizRoute.js';
 dotenv.config();
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRouter);
 app.use('/api/learning-journeys', learningJourneyRouter);
+app.use('/api/quizzes', quizRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
