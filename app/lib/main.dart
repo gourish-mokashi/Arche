@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'home_page.dart';
 import 'features/auth/presentation/pages/login.dart';
@@ -41,6 +42,11 @@ class ArcheApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          textTheme: GoogleFonts.robotoTextTheme(),
+          // OR for Inter:
+          // textTheme: GoogleFonts.interTextTheme(),
+        ),
 
         // ----------------------------------------------------
         // FIRST PAGE SHOWN WHEN APP OPENS

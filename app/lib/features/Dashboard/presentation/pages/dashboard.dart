@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselController;
+import 'package:carousel_slider/carousel_slider.dart';
 import '../../../learningJourneys/data/models/learning_journey_model.dart';
 import '../../../learningJourneys/data/repositories/learning_repository.dart';
 import '../../../auth/presentation/bloc/auth_local.dart';
 import '../../../learningJourneys/presentation/pages/Course_screen.dart';
+import '../../../learningJourneys/presentation/pages/daily_task_screen.dart';
+import '../widgets/course_card.dart';
 import '../widgets/course_progress_card.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -18,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// We will store detailed journeys here
   Future<List<LearningJourney>>? _detailedJourneysFuture;
+  int _currentCourseIndex = 0;
 
   @override
   void initState() {
@@ -62,86 +66,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F4FF),
+      body: Container(
+        
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF4338CA), Colors.white],
+          ),
+        ),
+        
+        child: FutureBuilder<List<LearningJourney>>(
+          future: _detailedJourneysFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-      body: FutureBuilder<List<LearningJourney>>(
-        future: _detailedJourneysFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            }
 
-          if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          }
+            final journeys = snapshot.data ?? [];
 
-          final journeys = snapshot.data ?? [];
+            if (journeys.isEmpty) {
+              return const Center(child: Text("No learning journeys found."));
+            }
+            
+            
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  CarouselSlider.builder(
+                    itemCount: journeys.length,
+                    itemBuilder: (context, index, realIndex) {
+                      final journey = journeys[index];
+                      return CourseCard(
+                        journey: journey,
+                        onContinue: (subTopic) async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DailyTaskScreen(
+                                subTopic: subTopic,
+                                journeyId: journey.id,
+                                userId: userId,
+                                repository: repository,
+                              ),
+                            ),
+                          );
 
-          if (journeys.isEmpty) {
-            return const Center(child: Text("No learning journeys yet"));
-          }
+                          if (result == true) {
+                            _reloadDashboard();
+                          }
+                        },
+                        onDailyTaskTapped: (subTopic) async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DailyTaskScreen(
+                                subTopic: subTopic,
+                                journeyId: journey.id,
+                                userId: userId,
+                                repository: repository,
+                              ),
+                            ),
+                          );
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Welcome Back 👋",
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 20),
-
-                ...journeys.map((journey) {
-                  final total = journey.subTopics.length;
-                  final completed = journey.subTopics
-                      .where((t) => t.isCompleted)
-                      .length;
-
-                  final double progress = total == 0 ? 0 : completed / total;
-
-                  final int streak = _calculateStreak(journey.subTopics);
-
-                  return GestureDetector(
-                    onTap: () async {
-                      final fullJourney = await repository.getJourneyDetails(
-                        userId,
-                        journey.id,
+                          if (result == true) {
+                            _reloadDashboard();
+                          }
+                        },
                       );
-
-                      if (!mounted) return;
-
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => GeneratedRoadmapScreen(
-                            journey: fullJourney,
-                            repository: repository,
-                            userId: userId,
-                          ),
+                    },
+                    options: CarouselOptions(
+                      height: 400, // Adjust height to fit your CourseCard
+                      viewportFraction: 0.9,
+                      enlargeCenterPage: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentCourseIndex = index;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(journeys.length, (index) {
+                      return Container(
+                        width: 8.0,
+                        height: 8.0,
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 10.0,
+                          horizontal: 4.0,
+                        ),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _currentCourseIndex == index
+                              ? const Color(0xFF4338CA)
+                              : Colors.grey.withOpacity(0.5),
                         ),
                       );
-
-                      _reloadDashboard(); // refresh UI after returning
-                    },
-
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: CourseProgressCard(
-                        courseName: journey.topicName,
-                        completed: completed,
-                        total: total == 0 ? 1 : total,
-                        streak: streak,
-                      ),
-                    ),
-                  );
-                }),
-
-                const SizedBox(height: 20),
-              ],
-            ),
-          );
-        },
+                    }),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

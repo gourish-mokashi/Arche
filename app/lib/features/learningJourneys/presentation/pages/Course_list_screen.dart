@@ -133,10 +133,36 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: CourseProgressCard(
-                      courseName: journey.topicName,
-                      completed: completed,
-                      total: total == 0 ? 1 : total,
-                      streak: streak,
+                      journey: journey,
+                      onContinue: (subTopic) async {
+                        // This is the same logic from your GestureDetector's onTap
+                        try {
+                          final detailed = await widget.repository
+                              .getJourneyDetails(userId, journey.id);
+
+                          if (!mounted) return;
+
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => GeneratedRoadmapScreen(
+                                journey: detailed,
+                                repository: widget.repository,
+                                userId: userId,
+                              ),
+                            ),
+                          );
+
+                          _refresh();
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Failed to open course: $e"),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
                 );
