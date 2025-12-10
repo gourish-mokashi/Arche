@@ -86,12 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Welcome Back 👋",
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 20),
-
+                
                 ...journeys.map((journey) {
                   final total = journey.subTopics.length;
                   final completed = journey.subTopics
@@ -128,10 +123,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 20),
                       child: CourseProgressCard(
-                        courseName: journey.topicName,
-                        completed: completed,
-                        total: total == 0 ? 1 : total,
-                        streak: streak,
+                        journey: journey,
+                        onContinue: () async {
+                          final fullJourney = await repository.getJourneyDetails(
+                            userId,
+                            journey.id,
+                          );
+
+                          if (!mounted) return;
+
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => GeneratedRoadmapScreen(
+                                journey: fullJourney,
+                                repository: repository,
+                                userId: userId,
+                              ),
+                            ),
+                          );
+
+                          _reloadDashboard(); // refresh UI after returning
+                        },
                       ),
                     ),
                   );
