@@ -2,6 +2,19 @@ import roadmapAgent from "../aiAgents/roadmapAgent.js";
 import prisma from "../exports/prisma.js";
 import findRelevantVideoMaterials from "../lib/findRelevantVideoMaterials.js";
 
+const streakToupdate = (details) => {
+  const today = new Date();
+  const lastDate = new Date(details.lastAccessed);
+  const diffTime = Math.abs(today - lastDate);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 1) {
+    return details.streakCount + 1;
+  } else if (diffDays > 1) {
+    return 1;
+  } else {
+    return details.streakCount;
+  }
+};
 
 async function newLearningJourney(req, res) {
   const {
@@ -115,17 +128,35 @@ async function updateProgress(req, res) {
 
     const previous = await prisma.subTopic.findUnique({
       where: { id: subTopicId },
-      select: { isCompleted: true },
+      select: { learningJourneyId: true, isCompleted: true },
     });
 
     if (!previous) {
       return res.status(404).json({ error: "Sub-topic not found." });
     }
 
+    const previousStreakDetails = await prisma.learningJourney.findFirst({
+      where: {
+        id: previous.learningJourneyId,
+      },
+      select: { lastAccessed: true, streakCount: true },
+    });
 
     const updatedSubTopic = await prisma.subTopic.update({
-      where: { id: subTopicId },
-      data: { isCompleted: !previous.isCompleted },
+      where: { 
+        id: subTopicId,
+      },
+      data: { isCompleted: true },
+    });
+
+    const updateStreakDetails = await prisma.learningJourney.update({
+      where: {
+        id: previous.learningJourneyId,
+      },
+      data: {
+        lastAccessed: new Date(),
+        streakCount: streakToupdate(previousStreakDetails),
+      },
     });
 
     return res.status(200).json({
