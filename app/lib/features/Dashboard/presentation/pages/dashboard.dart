@@ -3,10 +3,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../../../learningJourneys/data/models/learning_journey_model.dart';
 import '../../../learningJourneys/data/repositories/learning_repository.dart';
 import '../../../auth/presentation/bloc/auth_local.dart';
-import '../../../learningJourneys/presentation/pages/Course_screen.dart';
 import '../../../learningJourneys/presentation/pages/daily_task_screen.dart';
 import '../widgets/course_card.dart';
-import '../widgets/course_progress_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
