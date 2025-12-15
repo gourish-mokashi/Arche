@@ -179,7 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   /// Simple streak logic
-  int _calculateStreak(List<SubTopic> topics) {
+  /*int _calculateStreak(List<SubTopic> topics) {
     int streak = 0;
 
     for (final t in topics) {
@@ -191,5 +191,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return streak;
-  }
+  }*/
 }
