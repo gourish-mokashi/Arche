@@ -60,7 +60,7 @@ class _UploadCardState extends State<UploadCard> {
           _isUploading = false;
         });
 
-        if (result.success) {
+        if (!result.success) {
           Navigator.push(
             context,
             MaterialPageRoute(
