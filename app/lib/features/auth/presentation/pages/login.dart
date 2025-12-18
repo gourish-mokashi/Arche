@@ -119,8 +119,13 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 listener: (context, state) {
                   if (state is AuthSuccess) {
-                    // 🔥 FIXED — No more /dashboard route crash
-                    Navigator.pushReplacementNamed(context, '/arche');
+                    // Clear all previous routes and go to app shell
+                    // This prevents back navigation to login/signup pages
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/arche',
+                      (route) => false,
+                    );
                   } else if (state is AuthFailure) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.error)),
@@ -137,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
               LoginPrompt(
                 text: "Don't have an account? Create account",
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SignUpScreen(),

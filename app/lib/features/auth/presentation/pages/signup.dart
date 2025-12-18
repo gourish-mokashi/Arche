@@ -7,6 +7,7 @@ import 'package:app/features/auth/presentation/widgets/auth_password_field.dart'
 import 'package:app/features/auth/presentation/widgets/login_prompt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'login.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -167,7 +168,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 },
                 listener: (context, state) {
                   if (state is AuthSuccess) {
-                    Navigator.pushNamed(context, '/login');
+                    // After successful registration, navigate to login
+                    Navigator.pushReplacementNamed(context, '/login');
                   } else if (state is AuthFailure) {
                     ScaffoldMessenger.of(
                       context,
@@ -177,7 +179,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 10),
 
-              LoginPrompt(text: "Already have an account?", onTap: () {}),
+              LoginPrompt(
+                text: "Already have an account? Sign in",
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginPage(),
+                    ),
+                  );
+                },
+              ),
 
               const SizedBox(height: 20),
                 ],
