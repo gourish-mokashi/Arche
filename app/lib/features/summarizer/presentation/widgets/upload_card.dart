@@ -48,29 +48,6 @@ class _UploadCardState extends State<UploadCard> {
       _isUploading = true;
     });
 
-    // TODO: Remove this bypass when backend is ready
-    // Simulate upload delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() {
-        _isUploading = false;
-      });
-
-      // Bypass backend and navigate directly with mock data
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SummaryPage(
-            fileName: _pickedFile!.name,
-            documentId: 'mock_doc_${DateTime.now().millisecondsSinceEpoch}',
-            chatRepository: widget.chatRepository,
-          ),
-        ),
-      );
-    }
-
-    /* ORIGINAL BACKEND CODE - Uncomment when backend is ready
     try {
       final file = File(_pickedFile!.path!);
       final result = await widget.repository.uploadDocument(
@@ -83,7 +60,7 @@ class _UploadCardState extends State<UploadCard> {
           _isUploading = false;
         });
 
-        if (result.success) {
+        if (!result.success) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -113,7 +90,6 @@ class _UploadCardState extends State<UploadCard> {
         );
       }
     }
-    */
   }
 
   IconData _getFileIcon(String fileName) {
