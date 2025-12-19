@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../domain/repositories/chat_repository.dart';
-import 'dart:async';
 
 class SummaryPage extends StatefulWidget {
   final String fileName;
@@ -27,9 +26,7 @@ class _SummaryPageState extends State<SummaryPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
-  StreamSubscription? _chatSubscription;
   bool _isAiTyping = false;
-  bool _isConnected = false;
 
   @override
   void initState() {
@@ -44,71 +41,6 @@ class _SummaryPageState extends State<SummaryPage> {
         isMarkdown: true, // Enables markdown rendering with flutter_markdown
       ),
     );
-    _connectToChat();
-  }
-
-  void _connectToChat() {
-    try {
-      _chatSubscription = widget.chatRepository
-          .connectToChat(widget.fileId)
-          .listen(
-            _handleIncomingMessage,
-            onError: (error) {
-              debugPrint('WebSocket error: $error');
-              _showError('Connection error. Please try again.');
-            },
-          );
-    } catch (e) {
-      debugPrint('Failed to connect: $e');
-      _showError('Failed to connect to chat');
-    }
-  }
-
-  void _handleIncomingMessage(Map<String, dynamic> data) {
-    final type = data['type'] as String?;
-
-    switch (type) {
-      case 'connection_established':
-        setState(() {
-          _isConnected = true;
-        });
-        break;
-
-      case 'ai_response':
-        setState(() {
-          _isAiTyping = false;
-          _messages.add(
-            ChatMessage(
-              text: data['message'] as String,
-              isUser: false,
-              timestamp: DateTime.parse(data['timestamp'] as String),
-              isMarkdown: true,
-            ),
-          );
-        });
-        _scrollToBottom();
-        break;
-
-      case 'typing':
-        setState(() {
-          _isAiTyping = data['isTyping'] as bool? ?? false;
-        });
-        break;
-
-      case 'error':
-        _showError(data['message'] as String? ?? 'An error occurred');
-        setState(() {
-          _isAiTyping = false;
-        });
-        break;
-
-      case 'connection_closed':
-        setState(() {
-          _isConnected = false;
-        });
-        _showError('Connection closed');
-        break;
-    }
   }
 
   void _scrollToBottom() {
@@ -123,8 +55,8 @@ class _SummaryPageState extends State<SummaryPage> {
     });
   }
 
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty || !_isConnected) return;
+  Future<void> _sendMessage() async {
+    if (_messageController.text.trim().isEmpty || _isAiTyping) return;
 
     final messageText = _messageController.text.trim();
 
@@ -135,9 +67,39 @@ class _SummaryPageState extends State<SummaryPage> {
       _isAiTyping = true;
     });
 
-    widget.chatRepository.sendMessage(messageText);
     _messageController.clear();
     _scrollToBottom();
+
+    try {
+      // Call backend API to get follow-up answer (in markdown format)
+      final answer = await widget.chatRepository.sendFollowUpQuestion(
+        widget.fileId,
+        widget.userId,
+        messageText,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isAiTyping = false;
+          _messages.add(
+            ChatMessage(
+              text: answer,
+              isUser: false,
+              timestamp: DateTime.now(),
+              isMarkdown: true, // AI responses are in markdown
+            ),
+          );
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isAiTyping = false;
+        });
+        _showError('Failed to get answer: $e');
+      }
+    }
   }
 
   void _showError(String message) {
@@ -150,8 +112,6 @@ class _SummaryPageState extends State<SummaryPage> {
 
   @override
   void dispose() {
-    _chatSubscription?.cancel();
-    widget.chatRepository.disconnect();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -188,21 +148,6 @@ class _SummaryPageState extends State<SummaryPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: _isConnected ? Colors.greenAccent : Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -414,11 +359,11 @@ class _SummaryPageState extends State<SummaryPage> {
                 ),
                 child: TextField(
                   controller: _messageController,
-                  enabled: _isConnected,
+                  enabled: !_isAiTyping,
                   decoration: InputDecoration(
-                    hintText: _isConnected
-                        ? 'Ask about your document...'
-                        : 'Connecting...',
+                    hintText: _isAiTyping
+                        ? 'AI is thinking...'
+                        : 'Ask about your document...',
                     hintStyle: const TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -435,12 +380,12 @@ class _SummaryPageState extends State<SummaryPage> {
             const SizedBox(width: 8),
             Container(
               decoration: BoxDecoration(
-                color: _isConnected ? brandColor : Colors.grey,
+                color: _isAiTyping ? Colors.grey : brandColor,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
                 icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                onPressed: _isConnected ? _sendMessage : null,
+                onPressed: _isAiTyping ? null : _sendMessage,
               ),
             ),
           ],

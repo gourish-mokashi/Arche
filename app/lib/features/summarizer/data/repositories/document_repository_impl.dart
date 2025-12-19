@@ -1,9 +1,7 @@
-import 'dart:io';
 import '../../domain/entities/document.dart';
 import '../../domain/entities/upload_result.dart';
 import '../../domain/repositories/document_repository.dart';
 import '../datasources/document_remote_datasource.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DocumentRepositoryImpl implements DocumentRepository {
   final DocumentRemoteDataSource remoteDataSource;
