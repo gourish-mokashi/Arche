@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../domain/repositories/chat_repository.dart';
 import 'dart:async';
 
 class SummaryPage extends StatefulWidget {
   final String fileName;
-  final String documentId;
+  final String fileId;
+  final String summary;
   final ChatRepository chatRepository;
+  final String userId;
 
   const SummaryPage({
     super.key,
     required this.fileName,
-    required this.documentId,
+    required this.fileId,
+    required this.summary,
     required this.chatRepository,
+    required this.userId,
   });
 
   @override
@@ -29,13 +34,23 @@ class _SummaryPageState extends State<SummaryPage> {
   @override
   void initState() {
     super.initState();
+    // Add initial summary as first message
+    // The summary is in markdown format from the backend AI agent
+    _messages.add(
+      ChatMessage(
+        text: widget.summary,
+        isUser: false,
+        timestamp: DateTime.now(),
+        isMarkdown: true, // Enables markdown rendering with flutter_markdown
+      ),
+    );
     _connectToChat();
   }
 
   void _connectToChat() {
     try {
       _chatSubscription = widget.chatRepository
-          .connectToChat(widget.documentId)
+          .connectToChat(widget.fileId)
           .listen(
             _handleIncomingMessage,
             onError: (error) {
@@ -56,28 +71,7 @@ class _SummaryPageState extends State<SummaryPage> {
       case 'connection_established':
         setState(() {
           _isConnected = true;
-          _messages.add(
-            ChatMessage(
-              text: data['message'] as String? ?? 'Connected to Arche AI',
-              isUser: false,
-              timestamp: DateTime.now(),
-              isSystem: true,
-            ),
-          );
         });
-        break;
-
-      case 'summary_ready':
-        setState(() {
-          _messages.add(
-            ChatMessage(
-              text: data['summary'] as String,
-              isUser: false,
-              timestamp: DateTime.parse(data['timestamp'] as String),
-            ),
-          );
-        });
-        _scrollToBottom();
         break;
 
       case 'ai_response':
@@ -88,6 +82,7 @@ class _SummaryPageState extends State<SummaryPage> {
               text: data['message'] as String,
               isUser: false,
               timestamp: DateTime.parse(data['timestamp'] as String),
+              isMarkdown: true,
             ),
           );
         });
@@ -211,7 +206,6 @@ class _SummaryPageState extends State<SummaryPage> {
       ),
       body: Column(
         children: [
-          // Chat messages
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -225,8 +219,6 @@ class _SummaryPageState extends State<SummaryPage> {
               },
             ),
           ),
-
-          // Input field
           _buildMessageInput(deepIndigo),
         ],
       ),
@@ -234,25 +226,6 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   Widget _buildMessageBubble(ChatMessage message, Color brandColor) {
-    if (message.isSystem) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              message.text,
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-          ),
-        ),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -292,14 +265,48 @@ class _SummaryPageState extends State<SummaryPage> {
                   ),
                 ],
               ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: message.isUser ? Colors.white : Colors.black87,
-                  height: 1.4,
-                ),
-              ),
+              child: message.isMarkdown && !message.isUser
+                  ? MarkdownBody(
+                      data: message.text,
+                      styleSheet: MarkdownStyleSheet(
+                        p: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                        h1: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        h2: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        h3: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        code: TextStyle(
+                          backgroundColor: Colors.grey[200],
+                          fontFamily: 'monospace',
+                        ),
+                        codeblockDecoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    )
+                  : Text(
+                      message.text,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: message.isUser ? Colors.white : Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
             ),
           ),
           if (message.isUser) ...[
@@ -447,12 +454,12 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
-  final bool isSystem;
+  final bool isMarkdown;
 
   ChatMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
-    this.isSystem = false,
+    this.isMarkdown = false,
   });
 }
