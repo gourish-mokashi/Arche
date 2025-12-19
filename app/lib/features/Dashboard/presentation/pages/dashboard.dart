@@ -130,6 +130,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             }
 
+            // If only one active journey, show it centered without carousel
+            if (activeJourneys.length == 1) {
+              final journey = activeJourneys[0];
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      CourseCard(
+                        journey: journey,
+                        onContinue: (subTopic) async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DailyTaskScreen(
+                                subTopic: subTopic,
+                                journeyId: journey.id,
+                                userId: userId,
+                                repository: repository,
+                              ),
+                            ),
+                          );
+
+                          if (result == true) {
+                            _reloadDashboard();
+                          }
+                        },
+                        onDailyTaskTapped: (subTopic) async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DailyTaskScreen(
+                                subTopic: subTopic,
+                                journeyId: journey.id,
+                                userId: userId,
+                                repository: repository,
+                              ),
+                            ),
+                          );
+
+                          if (result == true) {
+                            _reloadDashboard();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            // Multiple active journeys - show carousel
             return SingleChildScrollView(
               child: Column(
                 children: [
@@ -177,9 +230,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     },
                     options: CarouselOptions(
-                      height: 400, // Adjust height to fit your CourseCard
+                      height: 400,
                       viewportFraction: 0.9,
                       enlargeCenterPage: true,
+                      enableInfiniteScroll: false, // Disable infinite scrolling
+                      autoPlay: false, // Disable auto-play
                       onPageChanged: (index, reason) {
                         setState(() {
                           _currentCourseIndex = index;
